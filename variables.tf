@@ -53,3 +53,7 @@ variable "auto_accept" {
 
   default = true
 }
+
+variable "enabled" {
+  default = true
+}
