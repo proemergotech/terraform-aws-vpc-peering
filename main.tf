@@ -44,7 +44,6 @@ resource "aws_vpc_peering_connection_accepter" "peer" {
 }
 
 resource "aws_route" "peer_from_to_peer_to" {
-  #  count = "${length(var.peer_from_route_tables)}"
   count = "${var.enabled ? "${var.peer_to_route_tables_count}" : 0}"
 
   route_table_id            = "${element(var.peer_from_route_tables, count.index)}"
@@ -53,7 +52,8 @@ resource "aws_route" "peer_from_to_peer_to" {
 }
 
 resource "aws_route" "peer_to_to_peer_from" {
-  count = "${var.enabled ? "${var.peer_to_route_tables_count}" : 0}"
+  provider = "aws.peer"
+  count    = "${var.enabled ? "${var.peer_to_route_tables_count}" : 0}"
 
   route_table_id            = "${element(var.peer_to_route_tables, count.index)}"
   destination_cidr_block    = "${data.aws_vpc.peer_from_vpc.cidr_block}"
