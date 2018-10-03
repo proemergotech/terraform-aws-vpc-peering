@@ -10,6 +10,12 @@ variable "peer_from_vpc_id" {
   description = "The VPC to peer from."
 }
 
+variable "peer_from_vpc_cidr" {
+  type = "string"
+
+  description = "The cidr block of the VPC to peer from."
+}
+
 variable "peer_from_route_tables_count" {
   type = "string"
 
@@ -34,6 +40,12 @@ variable "peer_to_vpc_id" {
   description = "The VPC ID to peer to."
 }
 
+variable "peer_to_vpc_cidr" {
+  type = "string"
+
+  description = "The cidr block of the VPC to peer to."
+}
+
 variable "peer_to_route_tables_count" {
   type = "string"
 
@@ -44,6 +56,18 @@ variable "peer_to_route_tables" {
   type = "list"
 
   description = "List of route tables from the peer to VPC."
+}
+
+variable "peer_region" {
+  type = "string"
+
+  description = "Region of the peer VPC provider."
+}
+
+variable "peer_profile" {
+  type = "string"
+
+  description = "Profile of the peer VPC provider."
 }
 
 variable "auto_accept" {
