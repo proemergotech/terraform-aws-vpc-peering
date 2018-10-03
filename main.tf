@@ -8,6 +8,16 @@ data "aws_caller_identity" "peer" {
   provider = "aws.peer"
 }
 
+data "aws_vpc" "peer_from_vpc" {
+  count = "${var.enabled ? 1 : 0}"
+  id    = "${var.peer_from_vpc_id}"
+}
+
+data "aws_vpc" "peer_to_vpc" {
+  count = "${var.enabled ? 1 : 0}"
+  id    = "${var.peer_to_vpc_id}"
+}
+
 resource "aws_vpc_peering_connection" "peer_from_to_peer_to_vpc" {
   count       = "${var.enabled ? 1 : 0}"
   peer_vpc_id = "${var.peer_to_vpc_id}"
