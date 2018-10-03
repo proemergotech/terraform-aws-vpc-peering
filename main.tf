@@ -9,9 +9,8 @@ data "aws_caller_identity" "peer" {
 }
 
 data "aws_vpc" "peer_from_vpc" {
-  provider = "aws.peer"
-  count    = "${var.enabled ? 1 : 0}"
-  id       = "${var.peer_from_vpc_id}"
+  count = "${var.enabled ? 1 : 0}"
+  id    = "${var.peer_from_vpc_id}"
 }
 
 data "aws_vpc" "peer_to_vpc" {
