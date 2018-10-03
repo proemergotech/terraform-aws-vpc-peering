@@ -20,16 +20,6 @@ data "aws_vpc" "peer_to_vpc" {
   id       = "${var.peer_to_vpc_id}"
 }
 
-data "aws_route_tables" "peer_from_route_tables" {
-  provider = "aws.peer"
-  vpc_id   = "${var.peer_from_vpc_id}"
-}
-
-data "aws_route_tables" "peer_to_route_tables" {
-  provider = "aws.peer"
-  vpc_id   = "${var.peer_to_vpc_id}"
-}
-
 resource "aws_vpc_peering_connection" "peer_from_to_peer_to_vpc" {
   count       = "${var.enabled ? 1 : 0}"
   peer_vpc_id = "${var.peer_to_vpc_id}"
