@@ -16,7 +16,7 @@ resource "aws_vpc_peering_connection" "peer_from_to_peer_to_vpc" {
   auto_accept = "false"
 
   tags = {
-    Name    = "${var.peer_from_vpc_name} to ${var.peer_to_vpc_name}"
+    Name    = "${var.peer_from_vpc_id} to ${var.peer_to_vpc_id}"
     Comment = "Managed By Terraform"
   }
 }
