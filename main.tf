@@ -30,10 +30,7 @@ resource "aws_vpc_peering_connection" "connection" {
   peer_region = "${data.aws_region.accepter.name}"
   auto_accept = "false"
 
-  tags = {
-    Name    = "${var.requester_vpc_id} to ${var.accepter_vpc_id}"
-    Comment = "Managed By Terraform"
-  }
+  tags = "${merge(map("Comment", "Managed By Terraform"), var.tags)}"
 }
 
 resource "aws_vpc_peering_connection_accepter" "accepter" {
@@ -42,9 +39,7 @@ resource "aws_vpc_peering_connection_accepter" "accepter" {
   vpc_peering_connection_id = "${aws_vpc_peering_connection.connection.id}"
   auto_accept               = "${var.auto_accept}"
 
-  tags = {
-    Comment = "Managed By Terraform"
-  }
+  tags = "${merge(map("Comment", "Managed By Terraform"), var.tags)}"
 }
 
 resource "aws_route" "requester_route" {

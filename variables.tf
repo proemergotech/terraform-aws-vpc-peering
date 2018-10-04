@@ -38,8 +38,14 @@ variable "auto_accept" {
   type = "string"
 
   description = "Specify whether or not connections should be automatically accepted"
+  default     = true
+}
 
-  default = true
+variable "tags" {
+  type = "map"
+
+  description = "A map of tags to add to peering connection resources, e.g. 'Name'"
+  default     = {}
 }
 
 variable "enabled" {
