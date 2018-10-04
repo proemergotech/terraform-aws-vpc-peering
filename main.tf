@@ -8,6 +8,7 @@ provider "aws" {
 
 data "aws_region" "accepter" {
   provider = "aws.accepter"
+  count    = "${var.enabled ? 1 : 0}"
 }
 
 data "aws_vpc" "requester" {
@@ -35,6 +36,7 @@ resource "aws_vpc_peering_connection" "connection" {
 
 resource "aws_vpc_peering_connection_accepter" "accepter" {
   provider = "aws.accepter"
+  count    = "${var.enabled ? 1 : 0}"
 
   vpc_peering_connection_id = "${aws_vpc_peering_connection.connection.id}"
   auto_accept               = "${var.auto_accept}"
