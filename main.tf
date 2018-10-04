@@ -1,41 +1,45 @@
 provider "aws" {
-  alias   = "peer"
-  region  = "${var.peer_region}"
-  profile = "${var.peer_profile}"
+  alias = "accepter"
 }
 
-data "aws_caller_identity" "peer" {
-  provider = "aws.peer"
+provider "aws" {
+  alias = "requester"
 }
 
-data "aws_vpc" "peer_from_vpc" {
-  count = "${var.enabled ? 1 : 0}"
-  id    = "${var.peer_from_vpc_id}"
+data "aws_region" "accepter" {
+  provider = "aws.accepter"
 }
 
-data "aws_vpc" "peer_to_vpc" {
-  provider = "aws.peer"
+data "aws_vpc" "requester" {
+  provider = "aws.requester"
   count    = "${var.enabled ? 1 : 0}"
-  id       = "${var.peer_to_vpc_id}"
+  id       = "${var.requester_vpc_id}"
 }
 
-resource "aws_vpc_peering_connection" "peer_from_to_peer_to_vpc" {
+data "aws_vpc" "accepter" {
+  provider = "aws.accepter"
+  count    = "${var.enabled ? 1 : 0}"
+  id       = "${var.accepter_vpc_id}"
+}
+
+resource "aws_vpc_peering_connection" "connection" {
+  provider    = "aws.requester"
   count       = "${var.enabled ? 1 : 0}"
-  peer_vpc_id = "${var.peer_to_vpc_id}"
-  vpc_id      = "${var.peer_from_vpc_id}"
-  peer_region = "${var.peer_region}"
+  peer_vpc_id = "${var.accepter_vpc_id}"
+  vpc_id      = "${var.requester_vpc_id}"
+  peer_region = "${data.aws_region.accepter}"
   auto_accept = "false"
 
   tags = {
-    Name    = "${var.peer_from_vpc_id} to ${var.peer_to_vpc_id}"
+    Name    = "${var.requester_vpc_id} to ${var.accepter_vpc_id}"
     Comment = "Managed By Terraform"
   }
 }
 
-resource "aws_vpc_peering_connection_accepter" "peer" {
-  provider = "aws.peer"
+resource "aws_vpc_peering_connection_accepter" "accepter" {
+  provider = "aws.accepter"
 
-  vpc_peering_connection_id = "${aws_vpc_peering_connection.peer_from_to_peer_to_vpc.id}"
+  vpc_peering_connection_id = "${aws_vpc_peering_connection.connection.id}"
   auto_accept               = "${var.auto_accept}"
 
   tags = {
@@ -43,19 +47,20 @@ resource "aws_vpc_peering_connection_accepter" "peer" {
   }
 }
 
-resource "aws_route" "peer_from_to_peer_to" {
-  count = "${var.enabled ? "${var.peer_to_route_tables_count}" : 0}"
+resource "aws_route" "requester_route" {
+  provider = "aws.requester"
+  count    = "${var.enabled ? "${var.requester_route_tables_count}" : 0}"
 
-  route_table_id            = "${element(var.peer_from_route_tables, count.index)}"
-  destination_cidr_block    = "${data.aws_vpc.peer_to_vpc.cidr_block}"
-  vpc_peering_connection_id = "${aws_vpc_peering_connection.peer_from_to_peer_to_vpc.id}"
+  route_table_id            = "${element(var.requester_route_tables, count.index)}"
+  destination_cidr_block    = "${data.aws_vpc.accepter.cidr_block}"
+  vpc_peering_connection_id = "${aws_vpc_peering_connection.connection.id}"
 }
 
-resource "aws_route" "peer_to_to_peer_from" {
-  provider = "aws.peer"
-  count    = "${var.enabled ? "${var.peer_to_route_tables_count}" : 0}"
+resource "aws_route" "accepter_route" {
+  provider = "aws.accepter"
+  count    = "${var.enabled ? "${var.accepter_route_tables_count}" : 0}"
 
-  route_table_id            = "${element(var.peer_to_route_tables, count.index)}"
-  destination_cidr_block    = "${data.aws_vpc.peer_from_vpc.cidr_block}"
-  vpc_peering_connection_id = "${aws_vpc_peering_connection.peer_from_to_peer_to_vpc.id}"
+  route_table_id            = "${element(var.accepter_route_tables, count.index)}"
+  destination_cidr_block    = "${data.aws_vpc.requester.cidr_block}"
+  vpc_peering_connection_id = "${aws_vpc_peering_connection.connection.id}"
 }
