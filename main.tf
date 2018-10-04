@@ -27,7 +27,7 @@ resource "aws_vpc_peering_connection" "connection" {
   count       = "${var.enabled ? 1 : 0}"
   peer_vpc_id = "${var.accepter_vpc_id}"
   vpc_id      = "${var.requester_vpc_id}"
-  peer_region = "${data.aws_region.accepter}"
+  peer_region = "${data.aws_region.accepter.name}"
   auto_accept = "false"
 
   tags = {
